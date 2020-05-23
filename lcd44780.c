@@ -104,7 +104,6 @@ int lcd44780setpos(int pi, int fd, int row, int col) {
 
 	curpos=rowstart[row]+col; 	// The desired cursor position is the row
 					// address plus the column offset required
-
 	buf=DDRAMSETADDR|curpos;
 
 	i=lcd44780writecmd4(pi,fd,buf);
@@ -262,7 +261,7 @@ int lcd44780init(int pi, int fd, int rows, int cols) {
 	lcdcols=cols;
 	
 	t.tv_sec=0;			// Time to sleep = 0 seconds plus a
-	t.tv_nsec=100000000L;		// minimum of 100ms (100,000,000 nanoseconds)
+	t.tv_nsec=200000000L;		// minimum of 200ms (200,000,000 nanoseconds)
 
  	
 	nanosleep(&t, (struct timespec *)NULL);			// Wait for power up
@@ -270,13 +269,13 @@ int lcd44780init(int pi, int fd, int rows, int cols) {
 	buf=((FUNCTIONSET|EIGHTBIT)>>4)&0x0F;		        // Weird initialization sequence to
 	for (count=1; count<=3; count++) {			// put the HD44780U into a known state
 	 	i=lcd44780writecmd8(pi,fd,buf);			// (8 bit mode) before setting it into 4 bit mode.
-		nanosleep(&t, (struct timespec *)NULL);		// Slow, so delay needed
+		nanosleep(&t, (struct timespec *)NULL);		// Slow, so extra delay needed
 	}
 
 	buf=((FUNCTIONSET|FOURBIT)>>4)&0x0F;			// Set display to use 4 bit cmnds
 								// Absolutely required if I2C is used!
 	i=lcd44780writecmd8(pi,fd,buf);
-	nanosleep(&t, (struct timespec *)NULL);			// Slow, so delay needed
+	nanosleep(&t, (struct timespec *)NULL);			// Slow, so extra delay needed
 
 	/* We're now definitely in 4 bit mode, so no longer need to shift the command down into the
            bottom 4 bits (before it's shifted up 4 and combined with the backlight and enable bits) */
@@ -284,17 +283,15 @@ int lcd44780init(int pi, int fd, int rows, int cols) {
 	buf=FUNCTIONSET|FOURBIT|TWOLINE;			// Set display to use 2 lines
 	i=lcd44780writecmd4(pi,fd,buf);
 
-	buf=DISPLAYCONTROL|DISPLAYOFF|CURSOROFF|BLINKOFF;	// Turn the display off
-	i=lcd44780writecmd4(pi,fd,buf);
+	lcd44780setdisplay(pi,fd,DISPLAYOFF,BLINKOFF,CURSOROFF);// Turn the display back on
 
 	buf=ENTRYMODESET|ENTRYRIGHT;				// Set the entrymode (left to right)
 	i=lcd44780writecmd4(pi,fd,buf);
 
 	lcd44780clear(pi,fd);					// Clear the display, cursor home
 
-	buf=DISPLAYCONTROL|DISPLAYON|BLINKOFF|CURSOROFF;	// Turn the display back on
-	i=lcd44780writecmd4(pi,fd,buf);				// cursor and blink off
-
+	lcd44780setdisplay(pi,fd,DISPLAYON,BLINKOFF,CURSOROFF);	// Turn the display back on
+	                               			 	// cursor and blink off
 	return(i);
 }
 
@@ -316,8 +313,8 @@ int lcd44780clear(int pi, int fd)
 	t.tv_sec=0;			// Time to sleep = 0 seconds plus a
 	t.tv_nsec=100000000L;		// minimum of 100ms (100,000,000 nanoseconds)
 
-	i=lcd44780writecmd4(pi,fd,buf);				// Clearing the display is slow
-	nanosleep(&t, (struct timespec *)NULL);			// so a delay is required.
+	i=lcd44780writecmd4(pi,fd,buf);		// Clearing the display is slow
+	nanosleep(&t, (struct timespec *)NULL);	// so a delay is required.
 
 	return(i);
 }
@@ -338,14 +335,13 @@ int lcd44780home(int pi, int fd)
 	struct timespec t;
 
 	t.tv_sec=0;			// Time to sleep = 0 seconds plus a
-	t.tv_nsec=50000000L;		// minimum of 50ms (50,000,000 nanoseconds)
+	t.tv_nsec=100000000L;		// minimum of 100ms (100,000,000 nanoseconds)
 
-	i=lcd44780writecmd4(pi,fd,buf);				// Can be slow, so
-	nanosleep(&t, (struct timespec *)NULL);			// a delay is required.
+	i=lcd44780writecmd4(pi,fd,buf);		// Can be slow, so
+	nanosleep(&t, (struct timespec *)NULL);	// a delay is required.
 
 	return(i);
 }
-
 
 int lcd44780writecmd8(int pi, int fd, char data)
 /******************************************************************************/
