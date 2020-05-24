@@ -151,6 +151,7 @@ int lcd44780str(int pi, int fd, char *writebuf, uint8_t row, uint8_t col) {
         char buf[lcdcols];
 
      	/* Error handling - check row specified is in the range ORIGIN to ORIGIN+lcdrows-1 */
+	/* and that column is in the range ORIGIN to ORIGIN+lcdcols-1 */
 
         if (row < ORIGIN) {
 		lcd44780error_fprintf(ROWTOOLOW);
@@ -181,6 +182,49 @@ int lcd44780str(int pi, int fd, char *writebuf, uint8_t row, uint8_t col) {
 
 	for (count=0;count<len;count++) { 
 		i=lcd44780writedata(pi,fd,buf[count]);
+	}
+
+        return(i);
+}
+
+int lcd44780clearline(int pi, int fd, uint8_t row, uint8_t col) {
+/******************************************************************************/
+/*                                                                            */
+/* Clear the specified line (row) from position col                           */
+/* Row ORIGIN = top row; Row ORIGIN+lcdrows-1 = bottom row                    */
+/*                                                                            */
+/* (c) Tim Holyoake, 10th May 2020.                                           */
+/*                                                                            */
+/******************************************************************************/
+	int i,count;
+        char buf[1]={" "};
+
+     	/* Error handling - check row specified is in the range ORIGIN to ORIGIN+lcdrows-1 */
+	/* and that column is in the range ORIGIN to ORIGIN+lcdcols-1 */
+
+        if (row < ORIGIN) {
+		lcd44780error_fprintf(ROWTOOLOW);
+		return (ROWTOOLOW);
+	} 
+	else if (row > ORIGIN+lcdrows-1) {
+		lcd44780error_fprintf(ROWTOOHIGH);
+		return (ROWTOOHIGH);
+	}
+
+        if (col < ORIGIN) {
+		lcd44780error_fprintf(COLTOOLOW);
+		return (COLTOOLOW);
+	} 
+	else if (col > ORIGIN+lcdcols-1) {
+		lcd44780error_fprintf(COLTOOHIGH);
+		return (COLTOOHIGH);
+	}
+
+	/* Set the display to the correct row and column */
+	i=lcd44780setpos(pi,fd,row-ORIGIN,col-ORIGIN);
+
+	for (count=col-ORIGIN;count<lcdcols;count++) { 
+		i=lcd44780writedata(pi,fd,buf[0]);
 	}
 
         return(i);

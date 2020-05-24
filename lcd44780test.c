@@ -16,6 +16,7 @@
 int main() {
         int ipi,fdlcd, count, x,y;
 	char c;
+	time_t t;
 
         ipi=pigpio_start(NULL,NULL);	// Initialise connection to pigpiod */ 
         if (ipi < 0) {
@@ -52,7 +53,12 @@ int main() {
 		lcd44780str(ipi,fdlcd,"VWXYZ0123456789!£*$%",3,1);
 		lcd44780str(ipi,fdlcd,"qwertyuiopasdghjklzx",4,1);
 		sleep(2);
+		lcd44780clearline(ipi,fdlcd,2,1);
+		lcd44780clearline(ipi,fdlcd,3,10);
+                lcd44780clearline(ipi,fdlcd,4,20);
+		sleep(2);
 		lcd44780clear(ipi,fdlcd);
+		srand((unsigned) time(&t));
 		for (count=0;count<1000;count++) {
 			x=(rand()%20)+1;
 			y=(rand()%4)+1;

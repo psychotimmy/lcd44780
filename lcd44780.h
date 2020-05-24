@@ -25,6 +25,7 @@
 extern void lcd44780error_fprintf(int errnum);
 extern int lcd44780str(int pi, int fd, char *writebuf, uint8_t row, uint8_t col);
 extern int lcd44780chr(int pi, int fd, char *writebuf, uint8_t row, uint8_t col);
+extern int lcd44780clearline(int pi, int fd, uint8_t row,uint8_t col);
 extern int lcd44780writecmd8(int pi, int fd, char data);
 extern int lcd44780writecmd4(int pi, int fd, char data);
 extern int lcd44780writedata(int pi, int fd, char data);
